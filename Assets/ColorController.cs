@@ -27,6 +27,6 @@ public class ColorController : MonoBehaviour {
 	}	
 	
 	public static void SkipForward () {
-		skip += 0.1f;
+		// skip += 0.1f;
 	}	
 }

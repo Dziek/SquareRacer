@@ -30,9 +30,8 @@ public class Timer : MonoBehaviour {
 		}
 	}
 	
-	// Update is called once per frame
-	void Update () {
-	
+	public void StartLevel () {
+		StartCoroutine("StartTimer");
 	}
 	
 	IEnumerator StartTimer () {
@@ -43,6 +42,12 @@ public class Timer : MonoBehaviour {
 			currentTime += Time.deltaTime;
 			// currentTime++;
 			currentTimeText.text = currentTime.ToString("00.0");
+			
+			if (currentTime >= 99.9f)
+			{
+				currentTimeText.text = "99.9";
+			}
+			
 			yield return null;
 		}
 	}
@@ -52,20 +57,20 @@ public class Timer : MonoBehaviour {
 		{
 			if (other.gameObject.GetComponent<PlayerMovement>().GetDirectionAsVector2() == direction && AllCheckpointsHit())
 			{
-				if (currentTime != 0)
-				{
-					// Debug.Log(currentTime.ToString("f2"));
-					lastTime = currentTime;
-					lastTimeText.text = lastTime.ToString("00.00");
-					if (lastTime < bestTime || bestTime == 0)
-					{
-						bestTime = lastTime;
-						bestTimeText.text = bestTime.ToString("00.00");
-					}
-				}
+				// if (currentTime != 0)
+				// {
+					// // Debug.Log(currentTime.ToString("f2"));
+					// lastTime = currentTime;
+					// lastTimeText.text = lastTime.ToString("00.00");
+					// if (lastTime < bestTime || bestTime == 0)
+					// {
+						// bestTime = lastTime;
+						// bestTimeText.text = bestTime.ToString("00.00");
+					// }
+				// }
 				
-				StopCoroutine("StartTimer");
-				StartCoroutine("StartTimer");
+				// StopCoroutine("StartTimer");
+				// StartCoroutine("StartTimer");
 			}
 		}
 	}
@@ -90,5 +95,22 @@ public class Timer : MonoBehaviour {
 		
 		// Debug.Log("T");
 		return true;
+	}
+	
+	public void LapComplete () {
+		if (currentTime != 0)
+		{
+			// Debug.Log(currentTime.ToString("f2"));
+			lastTime = currentTime;
+			lastTimeText.text = lastTime.ToString("00.00");
+			if (lastTime < bestTime || bestTime == 0)
+			{
+				bestTime = lastTime;
+				bestTimeText.text = bestTime.ToString("00.00");
+			}
+		}
+		
+		StopCoroutine("StartTimer");
+		StartCoroutine("StartTimer");
 	}
 }
