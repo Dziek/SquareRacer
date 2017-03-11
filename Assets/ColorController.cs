@@ -8,6 +8,8 @@ public class ColorController : MonoBehaviour {
 	public static float startingSpeed = 1;
 	public static float speed = 1;
 	
+	public static float skip = 0;
+	
 	public static void DecreaseDuration (float i) {
 		duration -= i;
 	}
@@ -22,5 +24,9 @@ public class ColorController : MonoBehaviour {
 	
 	public static void ResetSpeed () {
 		speed = startingSpeed;
+	}	
+	
+	public static void SkipForward () {
+		skip += 0.1f;
 	}	
 }

@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.UI;
 
 public class LerpColor : MonoBehaviour {
 	
@@ -15,16 +16,26 @@ public class LerpColor : MonoBehaviour {
 	private Color currentColor;
 	
 	private SpriteRenderer sR;
+	private TrailRenderer tR;
 	private Camera cR;
+	private Text text;
 	
 	void Awake () {
 		if (GetComponent<SpriteRenderer>())
 		{
 			sR = GetComponent<SpriteRenderer>();
 		}
+		if (GetComponent<TrailRenderer>())
+		{
+			tR = GetComponent<TrailRenderer>();
+		}
 		if (GetComponent<Camera>())
 		{
 			cR = GetComponent<Camera>();
+		}
+		if (GetComponent<Text>())
+		{
+			text = GetComponent<Text>();
 		}
 	}
 	
@@ -71,10 +82,20 @@ public class LerpColor : MonoBehaviour {
 			// float t = startingPoint + Mathf.Repeat(Time.time, duration) / duration;
 			float t = startingPoint + Mathf.Repeat(l, duration) / duration;
 			// float t = startingPoint + Mathf.Lerp(0, duration, Time.time);
+			
+			t += ColorController.skip;
+			
+			// 0.7 += 0.5
+			// 1.2
+			// - 1.5
+			
 			if (t > 1)
 			{
-				t -= 1;
+				// t -= 1;
+				t -= Mathf.Clamp(Mathf.Floor(t), 0, 10000000000000000000);
+				// t -= (1 + ColorController.skip);
 			}
+			// Debug.Log(t);
 			currentColor = gradient.Evaluate(t);
 			
 			UpdateObject();
@@ -88,9 +109,17 @@ public class LerpColor : MonoBehaviour {
 		{
 			sR.color = currentColor;
 		}
+		if (tR != null)
+		{
+			// tR.color = currentColor;
+		}
 		if (cR != null)
 		{
 			cR.backgroundColor = currentColor;
+		}
+		if (text != null)
+		{
+			text.color = currentColor;
 		}
 	}
 	

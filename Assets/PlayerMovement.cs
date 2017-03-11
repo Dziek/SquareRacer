@@ -20,6 +20,11 @@ public class PlayerMovement : MonoBehaviour {
 	} [HideInInspector] public directions direction = directions.None, selectedDirection;
 	
 	private Rigidbody2D rb2D;
+	private TrailRenderer tR;
+	
+	private CameraShake cameraShakeScript;
+	
+	// private bool hit;
 	
 	// Use this for initialization
 	void Start () {
@@ -28,55 +33,120 @@ public class PlayerMovement : MonoBehaviour {
 		
 		// Reset();
 		rb2D = GetComponent<Rigidbody2D>();
+		
+		if (GetComponent<TrailRenderer>())
+		{
+			tR = GetComponent<TrailRenderer>();
+		}
+		
+		cameraShakeScript = Camera.main.GetComponent<CameraShake>();
+		
 		speed = startingSpeed;
 	}
 	
 	// Update is called once per frame
 	void Update () {
 		// if (GameStates.GetState() == "Playing")
-		{
+		// {
 			CheckControls();
 			// Move();
+		// }
+		
+		if (speed >= startingSpeed * 2)
+		{
+			// Messenger<float>.Broadcast("screenshake", speed/150);
+			cameraShakeScript.ConstantShake(speed/250);
 		}
 	}
+	
+	// void LateUpdate () {
+		// if (speed >= startingSpeed * 2 && hit == false)
+		// // if (speed >= startingSpeed * 2)
+		// {
+			// Messenger<float>.Broadcast("screenshake", speed/150);
+		// }
+	// }
 	
 	void FixedUpdate () {
 		rb2D.MovePosition(rb2D.position + (Vector2)GetDirectionAsVector() * (speed * Time.fixedDeltaTime));
 	}
 	
 	void CheckControls () {
+		// if (reverseControls == false)
+		// {
+			// if (Input.GetKeyDown("w") || Input.GetKeyDown("up"))
+			// {
+				// RegisterInput("Up");
+			// }
+			// if (Input.GetKeyDown("s") || Input.GetKeyDown("down")) 
+			// {
+				// RegisterInput("Down");
+			// }
+			// if (Input.GetKeyDown("d") || Input.GetKeyDown("right")) 
+			// {	
+				// RegisterInput("Right");
+			// }
+			// if (Input.GetKeyDown("a") || Input.GetKeyDown("left")) 
+			// {
+				// RegisterInput("Left");
+			// }
+		// }else{
+			// if (Input.GetKeyDown("w") || Input.GetKeyDown("up"))
+			// {
+				// RegisterInput("Down");
+			// }
+			// if (Input.GetKeyDown("s") || Input.GetKeyDown("down")) 
+			// {
+				// RegisterInput("Up");
+			// }
+			// if (Input.GetKeyDown("d") || Input.GetKeyDown("right")) 
+			// {	
+				// RegisterInput("Left");
+			// }
+			// if (Input.GetKeyDown("a") || Input.GetKeyDown("left")) 
+			// {
+				// RegisterInput("Right");
+			// }
+		// }
+		
 		if (reverseControls == false)
 		{
-			if (Input.GetKeyDown("w") || Input.GetKeyDown("up"))
+			if (Input.GetAxisRaw("Vertical") > 0.5f)
 			{
 				RegisterInput("Up");
 			}
-			if (Input.GetKeyDown("s") || Input.GetKeyDown("down")) 
+			else
+			if (Input.GetAxisRaw("Vertical") < -0.5f) 
 			{
 				RegisterInput("Down");
 			}
-			if (Input.GetKeyDown("d") || Input.GetKeyDown("right")) 
+			else
+			if (Input.GetAxisRaw("Horizontal") > 0.5f) 
 			{	
 				RegisterInput("Right");
 			}
-			if (Input.GetKeyDown("a") || Input.GetKeyDown("left")) 
+			else
+			if (Input.GetAxisRaw("Horizontal") < -0.5f) 
 			{
 				RegisterInput("Left");
 			}
 		}else{
-			if (Input.GetKeyDown("w") || Input.GetKeyDown("up"))
+			if (Input.GetAxisRaw("Vertical") > 0.5f)
 			{
 				RegisterInput("Down");
 			}
-			if (Input.GetKeyDown("s") || Input.GetKeyDown("down")) 
+			else
+			if (Input.GetAxisRaw("Vertical") < -0.5f) 
 			{
 				RegisterInput("Up");
 			}
-			if (Input.GetKeyDown("d") || Input.GetKeyDown("right")) 
+			else
+			if (Input.GetAxisRaw("Horizontal") > 0.5f) 
 			{	
 				RegisterInput("Left");
 			}
-			if (Input.GetKeyDown("a") || Input.GetKeyDown("left")) 
+			else
+			if (Input.GetAxisRaw("Horizontal") < -0.5f) 
 			{
 				RegisterInput("Right");
 			}
@@ -98,10 +168,16 @@ public class PlayerMovement : MonoBehaviour {
 			if (GetDirectionAsVector2() != -GetDirectionAsVector2(selectedDirection))
 			{
 				speed += speedIncrease;
+				
+				// Messenger<float>.Broadcast("screenshake", speed/10);
+				
 				// ColorController.DecreaseDuration(0.25f);
 				ColorController.IncreaseSpeed(0.25f);
+				ColorController.SkipForward();
+				// direction = selectedDirection;
 			}else{
 				SlowDown();
+				// speed = Mathf.Clamp(speed - speedIncrease, startingSpeed, maxSpeed);
 			}
 		}
 		
@@ -127,33 +203,33 @@ public class PlayerMovement : MonoBehaviour {
 		// }
 	}
 	
-	void Move () {
-		// switch (direction)
-		// {
-			// case directions.Up:
-				// transform.Translate(Vector3.up * (Time.deltaTime * speedL), Space.World);
-			// break;
-			// case directions.Down:
-				// transform.Translate(Vector3.up * (-Time.deltaTime * speedL), Space.World);
-			// break;
-			// case directions.Right:
-				// transform.Translate(Vector3.right * (Time.deltaTime * speedL), Space.World);
-			// break;
-			// case directions.Left:
-				// transform.Translate(Vector3.right * (-Time.deltaTime * speedL), Space.World);
-			// break;
-		// }
+	// void Move () {
+		// // switch (direction)
+		// // {
+			// // case directions.Up:
+				// // transform.Translate(Vector3.up * (Time.deltaTime * speedL), Space.World);
+			// // break;
+			// // case directions.Down:
+				// // transform.Translate(Vector3.up * (-Time.deltaTime * speedL), Space.World);
+			// // break;
+			// // case directions.Right:
+				// // transform.Translate(Vector3.right * (Time.deltaTime * speedL), Space.World);
+			// // break;
+			// // case directions.Left:
+				// // transform.Translate(Vector3.right * (-Time.deltaTime * speedL), Space.World);
+			// // break;
+		// // }
 		
-		Vector3 dir = GetDirectionAsVector();
+		// Vector3 dir = GetDirectionAsVector();
 		
-		// if (reverseControls)
-		// {
-			// dir = -dir;
-		// }
+		// // if (reverseControls)
+		// // {
+			// // dir = -dir;
+		// // }
 		
-		transform.Translate(dir * (Time.deltaTime * speed), Space.World);
-		// transform.Translate(GetDirectionAsVector() * (Time.deltaTime * speed), Space.World);
-	}
+		// transform.Translate(dir * (Time.deltaTime * speed), Space.World);
+		// // transform.Translate(GetDirectionAsVector() * (Time.deltaTime * speed), Space.World);
+	// }
 	
 	public Vector3 GetDirectionAsVector () {
 		switch (direction)
@@ -218,15 +294,34 @@ public class PlayerMovement : MonoBehaviour {
 	void OnCollisionEnter2D (Collision2D other) {
 		if (other.gameObject.tag == "Wall" && other.contacts[0].normal == -(Vector2)GetDirectionAsVector())
 		{
+			// hit = true;
+			
+			Messenger<float>.Broadcast("screenshake", speed/15);
+			
 			SlowDown();
 			// Debug.Log("HIT");
 		}
+		// else{
+			// hit = false;
+		// }
 	}
 	
 	void SlowDown () {
+		
+		
+		
 		speed = startingSpeed;
+		// speed = Mathf.Clamp(speed - speedIncrease, startingSpeed, maxSpeed);
+		
 		// ColorController.ResetDuration();
 		ColorController.ResetSpeed();
+		
+		if (tR != null)
+		{
+			tR.Clear();
+		}
+		
+		
 		
 		// Debug.Log("S");
 	}
