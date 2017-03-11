@@ -13,34 +13,43 @@ public class LerpColor : MonoBehaviour {
 	public Gradient gradient;
 	
 	private float duration;
-	private Color currentColor;
+	[HideInInspector] public Color currentColor;
 	
-	private SpriteRenderer sR;
-	private TrailRenderer tR;
-	private Camera cR;
-	private Text text;
+	[HideInInspector] public SpriteRenderer[] sR_array;
+	[HideInInspector] public TrailRenderer[] tR_array;
+	[HideInInspector] public Text[] text_array;
+	
+	[HideInInspector] public SpriteRenderer sR;
+	[HideInInspector] public TrailRenderer tR;
+	[HideInInspector] public Text text;
+	
+	[HideInInspector] public Camera cR;
 	
 	void Awake () {
-		if (GetComponent<SpriteRenderer>())
-		{
-			sR = GetComponent<SpriteRenderer>();
-		}
-		if (GetComponent<TrailRenderer>())
-		{
-			tR = GetComponent<TrailRenderer>();
-		}
+		Messenger<float, float, Gradient>.AddListener("lerpcolor", SetUp);
+		
+		GetRenderers();
+	}
+	
+	void OnDestroy () {
+		Messenger<float, float, Gradient>.RemoveListener("lerpcolor", SetUp);
+	}
+	
+	public virtual void GetRenderers () {
 		if (GetComponent<Camera>())
 		{
 			cR = GetComponent<Camera>();
 		}
-		if (GetComponent<Text>())
-		{
-			text = GetComponent<Text>();
-		}
+	}
+	
+	public void SetUp (float s, float d, Gradient g) {
+		speed = s;
+		startingDuration = d;
+		gradient = g;
 	}
 	
 	// Use this for initialization
-	void Start () {
+	public void Start () {
 		if (startingPoint < 0)
 		{
 			startingPoint = Random.Range(0, 1f);
@@ -68,7 +77,7 @@ public class LerpColor : MonoBehaviour {
 		// UpdateObject();
 	// }
 	
-	IEnumerator Lerp () {
+	public IEnumerator Lerp () {
 		
 		float l = 0;
 		
@@ -83,7 +92,7 @@ public class LerpColor : MonoBehaviour {
 			float t = startingPoint + Mathf.Repeat(l, duration) / duration;
 			// float t = startingPoint + Mathf.Lerp(0, duration, Time.time);
 			
-			t += ColorController.skip;
+			// t += ColorController.skip;
 			
 			// 0.7 += 0.5
 			// 1.2
@@ -104,24 +113,31 @@ public class LerpColor : MonoBehaviour {
 		}
 	}
 	
-	void UpdateObject () {
-		if (sR != null)
+	public virtual void UpdateObject () {
+		if (sR_array != null)
 		{
-			sR.color = currentColor;
+			// sR.color = currentColor;
+			foreach (SpriteRenderer c in sR_array)
+			{
+				c.color = currentColor;
+			}
 		}
-		if (tR != null)
-		{
+		// if (tR != null)
+		// {
 			// tR.color = currentColor;
+		// }
+		if (text_array != null)
+		{
+			// text.color = currentColor;
+			foreach (Text c in text_array)
+			{
+				c.color = currentColor;
+			}
 		}
+		
 		if (cR != null)
 		{
 			cR.backgroundColor = currentColor;
 		}
-		if (text != null)
-		{
-			text.color = currentColor;
-		}
 	}
-	
-	// public void
 }

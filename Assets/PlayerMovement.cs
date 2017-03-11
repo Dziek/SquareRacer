@@ -172,8 +172,11 @@ public class PlayerMovement : MonoBehaviour {
 				// Messenger<float>.Broadcast("screenshake", speed/10);
 				
 				// ColorController.DecreaseDuration(0.25f);
-				ColorController.IncreaseSpeed(0.25f);
-				ColorController.SkipForward();
+				
+				// ColorController.IncreaseSpeed(0.25f);
+				ColorController.IncreaseSpeed(0.1f);
+				
+				// ColorController.SkipForward();
 				// direction = selectedDirection;
 			}else{
 				SlowDown();

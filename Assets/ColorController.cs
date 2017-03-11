@@ -3,20 +3,20 @@ using System.Collections;
 
 public class ColorController : MonoBehaviour {
 	
-	public static float startingDuration = 10;
-	public static float duration = 10;
-	public static float startingSpeed = 1;
+	// public static float startingDuration = 10;
+	// public static float duration = 10;
+	public static float startingSpeed = 0.5f;
 	public static float speed = 1;
 	
-	public static float skip = 0;
+	// public static float skip = 0;
 	
-	public static void DecreaseDuration (float i) {
-		duration -= i;
-	}
+	// public static void DecreaseDuration (float i) {
+		// duration -= i;
+	// }
 	
-	public static void ResetDuration () {
-		duration = startingDuration;
-	}	
+	// public static void ResetDuration () {
+		// duration = startingDuration;
+	// }	
 	
 	public static void IncreaseSpeed (float i) {
 		speed += i;
@@ -26,7 +26,7 @@ public class ColorController : MonoBehaviour {
 		speed = startingSpeed;
 	}	
 	
-	public static void SkipForward () {
+	// public static void SkipForward () {
 		// skip += 0.1f;
-	}	
+	// }	
 }
