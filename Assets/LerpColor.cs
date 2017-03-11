@@ -12,6 +12,8 @@ public class LerpColor : MonoBehaviour {
 	public float startingPoint = 0;
 	public Gradient gradient;
 	
+	public bool ignoreOverride;
+	
 	private float duration;
 	[HideInInspector] public Color currentColor;
 	
@@ -43,9 +45,12 @@ public class LerpColor : MonoBehaviour {
 	}
 	
 	public void SetUp (float s, float d, Gradient g) {
-		speed = s;
-		startingDuration = d;
-		gradient = g;
+		if (ignoreOverride == false)
+		{
+			speed = s;
+			startingDuration = d;
+			gradient = g;
+		}
 	}
 	
 	// Use this for initialization
