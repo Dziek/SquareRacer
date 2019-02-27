@@ -35,7 +35,8 @@ public class AudioController : MonoBehaviour {
 		float minPitch = 1;
 		float maxPitch = 2;
 		
-		float pitch = Mathf.Lerp(minPitch, maxPitch, playerMovement.GetSpeedPercentage());
+		// float pitch = Mathf.Lerp(minPitch, maxPitch, playerMovement.GetSpeedPercentage());
+		float pitch = Mathf.Lerp(minPitch, maxPitch, playerMovement.GetSpeedPercentage() - 0.07f); // UNSURE
 		
 		levelAS.pitch = pitch;
 		levelAS2.pitch = pitch;
@@ -83,12 +84,57 @@ public class AudioController : MonoBehaviour {
 	public void Crash (float speed) {
 		PlayClip(crashNoise, playerAS);
 		
-		StartCoroutine("FadeOutFadeIn");
+		// StartCoroutine("FadeOutFadeIn");
+		StartCoroutine("FadeOut");
 	}
 	
 	public void PlayerTurn () {
 		playerAS.pitch = Random.Range(1.0f, 2.0f);
-		playerAS.PlayOneShot(turnNoise, 0.2f);
+		playerAS.PlayOneShot(turnNoise, 0.25f);
+	}
+	
+	public void StartLevelAudio () {
+		StartCoroutine("FadeIn");
+	}
+	
+	public void StopLevelAudio () {
+		levelAS.volume = 0;
+		levelAS2.volume = 0;
+	}
+	
+	IEnumerator FadeOut () {
+		// float outTime = 0.219f;
+		float outTime = Mathf.Lerp(0, 0.219f, playerMovement.GetSpeedPercentage());
+		
+		float t = 0;
+		
+		while (t < outTime)
+		{
+			t += Time.deltaTime;
+			levelAS.volume = 1 - Mathf.Lerp(0, outTime, t);
+			yield return null;
+		}
+		
+		levelAS.volume = 0;
+	}
+	
+	IEnumerator FadeIn () {
+		
+		levelAS.volume = 0;
+		
+		float inTime = 1f;
+		// float inTime = Mathf.Lerp(1f, 2f, playerMovement.GetSpeedPercentage());
+		
+		float t = 0;
+		
+		while (t < inTime)
+		{
+			t += Time.deltaTime;
+			levelAS.volume = Mathf.Lerp(0, inTime, t);
+			yield return null;
+		}
+		
+		levelAS.volume = 1;
 	}
 	
 	IEnumerator FadeOutFadeIn () {

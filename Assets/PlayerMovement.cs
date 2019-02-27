@@ -6,8 +6,10 @@ public class PlayerMovement : MonoBehaviour {
 	public float startingSpeed = 4;
 	public float maxSpeed = 40;
 	public float speedIncrease = 0.5f;
+	public float speedIncreaseMin = 0.05f;
 	
 	private float speed;
+	private float speed_TEST;
 	
 	public bool reverseControls;
 	
@@ -51,11 +53,8 @@ public class PlayerMovement : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		// if (GameStates.GetState() == "Playing")
-		// {
-			CheckControls();
-			// Move();
-		// }
+		
+		CheckControls();
 		
 		if (speed >= startingSpeed * 2)
 		{
@@ -64,55 +63,11 @@ public class PlayerMovement : MonoBehaviour {
 		}
 	}
 	
-	// void LateUpdate () {
-		// if (speed >= startingSpeed * 2 && hit == false)
-		// // if (speed >= startingSpeed * 2)
-		// {
-			// Messenger<float>.Broadcast("screenshake", speed/150);
-		// }
-	// }
-	
 	void FixedUpdate () {
 		rb2D.MovePosition(rb2D.position + (Vector2)GetDirectionAsVector() * (speed * Time.fixedDeltaTime));
 	}
 	
 	void CheckControls () {
-		// if (reverseControls == false)
-		// {
-			// if (Input.GetKeyDown("w") || Input.GetKeyDown("up"))
-			// {
-				// RegisterInput("Up");
-			// }
-			// if (Input.GetKeyDown("s") || Input.GetKeyDown("down")) 
-			// {
-				// RegisterInput("Down");
-			// }
-			// if (Input.GetKeyDown("d") || Input.GetKeyDown("right")) 
-			// {	
-				// RegisterInput("Right");
-			// }
-			// if (Input.GetKeyDown("a") || Input.GetKeyDown("left")) 
-			// {
-				// RegisterInput("Left");
-			// }
-		// }else{
-			// if (Input.GetKeyDown("w") || Input.GetKeyDown("up"))
-			// {
-				// RegisterInput("Down");
-			// }
-			// if (Input.GetKeyDown("s") || Input.GetKeyDown("down")) 
-			// {
-				// RegisterInput("Up");
-			// }
-			// if (Input.GetKeyDown("d") || Input.GetKeyDown("right")) 
-			// {	
-				// RegisterInput("Left");
-			// }
-			// if (Input.GetKeyDown("a") || Input.GetKeyDown("left")) 
-			// {
-				// RegisterInput("Right");
-			// }
-		// }
 		
 		if (reverseControls == false)
 		{
@@ -156,12 +111,6 @@ public class PlayerMovement : MonoBehaviour {
 				RegisterInput("Right");
 			}
 		}
-		
-		
-		// if (Input.GetKeyDown("space")) 
-		// {
-			// ShootProjectile();
-		// }
 	}
 	
 	public void RegisterInput (string dir) {
@@ -174,77 +123,28 @@ public class PlayerMovement : MonoBehaviour {
 			{
 				if (direction != directions.None)
 				{
-					speed += speedIncrease;
+					speed_TEST += speedIncrease;
+					
+					
+					// speed += speedIncrease;
+					// speed += speedIncrease * (1 - GetSpeedPercentage());
+					speed += Mathf.Clamp(speedIncrease * (1.2f - GetSpeedPercentage()), speedIncreaseMin, speedIncrease); 
+					// UNSURE (0.05 is too shallow. Trying 0.3f speedIncreaseMin. I like there being a curve, but can't be too shallow
+					Debug.Log("Current Speed is: " + speed + " instead of: " + speed_TEST);
 					
 					ColorController.IncreaseSpeed(0.1f);
 					
 					audioController.PlayerTurn();
+				}else{
+					audioController.StartLevelAudio();
 				}
-				
-				// Messenger<float>.Broadcast("screenshake", speed/10);
-				
-				// ColorController.DecreaseDuration(0.25f);
-				
-				// ColorController.IncreaseSpeed(0.25f);
-				
-				
-				// ColorController.SkipForward();
-				// direction = selectedDirection;
 			}else{
 				SlowDown();
-				// speed = Mathf.Clamp(speed - speedIncrease, startingSpeed, maxSpeed);
 			}
 		}
 		
-		// if (direction == selectedDirection && boosting == false && boostReady)
-		// {
-			// boosting = true;
-			// boostReady = false;
-			
-			// StartCoroutine("Boost");
-		// }else{
 			direction = selectedDirection;
-		// }
-		
-		// if (lvlInfoDisplay != null && canGoAway)
-		// {
-			// lvlInfoDisplay.GetComponent<LevelInfoDisplay>().GoAway();
-			// canGoAway = false;
-		// }
-		
-		// if (controlledObjectScript != null)
-		// {
-			// controlledObjectScript.UpdateDir(direction.ToString());
-		// }
 	}
-	
-	// void Move () {
-		// // switch (direction)
-		// // {
-			// // case directions.Up:
-				// // transform.Translate(Vector3.up * (Time.deltaTime * speedL), Space.World);
-			// // break;
-			// // case directions.Down:
-				// // transform.Translate(Vector3.up * (-Time.deltaTime * speedL), Space.World);
-			// // break;
-			// // case directions.Right:
-				// // transform.Translate(Vector3.right * (Time.deltaTime * speedL), Space.World);
-			// // break;
-			// // case directions.Left:
-				// // transform.Translate(Vector3.right * (-Time.deltaTime * speedL), Space.World);
-			// // break;
-		// // }
-		
-		// Vector3 dir = GetDirectionAsVector();
-		
-		// // if (reverseControls)
-		// // {
-			// // dir = -dir;
-		// // }
-		
-		// transform.Translate(dir * (Time.deltaTime * speed), Space.World);
-		// // transform.Translate(GetDirectionAsVector() * (Time.deltaTime * speed), Space.World);
-	// }
 	
 	public Vector3 GetDirectionAsVector () {
 		switch (direction)
@@ -313,6 +213,8 @@ public class PlayerMovement : MonoBehaviour {
 			
 			Messenger<float>.Broadcast("screenshake", speed/50);
 			
+			audioController.Crash(speed);
+			
 			SlowDown();
 			// Debug.Log("HIT");
 		}
@@ -325,8 +227,9 @@ public class PlayerMovement : MonoBehaviour {
 		
 		Debug.Log("PlayerSpeed was: " + speed);
 		
-		audioController.Crash(speed);
 		
+		
+		speed_TEST = startingSpeed;
 		speed = startingSpeed;
 		// speed = Mathf.Clamp(speed - speedIncrease, startingSpeed, maxSpeed);
 		
