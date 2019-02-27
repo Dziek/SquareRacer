@@ -23,8 +23,13 @@ public class PlayerMovement : MonoBehaviour {
 	private TrailRenderer tR;
 	
 	private CameraShake cameraShakeScript;
+	private AudioController audioController;
 	
 	// private bool hit;
+	
+	void Awake () {
+		audioController = GameObject.Find("AudioController").GetComponent<AudioController>();
+	}
 	
 	// Use this for initialization
 	void Start () {
@@ -55,7 +60,7 @@ public class PlayerMovement : MonoBehaviour {
 		if (speed >= startingSpeed * 2)
 		{
 			// Messenger<float>.Broadcast("screenshake", speed/150);
-			cameraShakeScript.ConstantShake(speed/250);
+			cameraShakeScript.ConstantShake(speed/1000);
 		}
 	}
 	
@@ -167,14 +172,21 @@ public class PlayerMovement : MonoBehaviour {
 		{
 			if (GetDirectionAsVector2() != -GetDirectionAsVector2(selectedDirection))
 			{
-				speed += speedIncrease;
+				if (direction != directions.None)
+				{
+					speed += speedIncrease;
+					
+					ColorController.IncreaseSpeed(0.1f);
+					
+					audioController.PlayerTurn();
+				}
 				
 				// Messenger<float>.Broadcast("screenshake", speed/10);
 				
 				// ColorController.DecreaseDuration(0.25f);
 				
 				// ColorController.IncreaseSpeed(0.25f);
-				ColorController.IncreaseSpeed(0.1f);
+				
 				
 				// ColorController.SkipForward();
 				// direction = selectedDirection;
@@ -299,7 +311,7 @@ public class PlayerMovement : MonoBehaviour {
 		{
 			// hit = true;
 			
-			Messenger<float>.Broadcast("screenshake", speed/15);
+			Messenger<float>.Broadcast("screenshake", speed/50);
 			
 			SlowDown();
 			// Debug.Log("HIT");
@@ -311,7 +323,9 @@ public class PlayerMovement : MonoBehaviour {
 	
 	void SlowDown () {
 		
+		Debug.Log("PlayerSpeed was: " + speed);
 		
+		audioController.Crash(speed);
 		
 		speed = startingSpeed;
 		// speed = Mathf.Clamp(speed - speedIncrease, startingSpeed, maxSpeed);
@@ -324,8 +338,12 @@ public class PlayerMovement : MonoBehaviour {
 			tR.Clear();
 		}
 		
-		
+		direction = directions.None;
 		
 		// Debug.Log("S");
+	}
+	
+	public float GetSpeedPercentage () {
+		return Mathf.InverseLerp(startingSpeed, maxSpeed, speed);
 	}
 }

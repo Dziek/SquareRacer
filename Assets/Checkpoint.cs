@@ -8,10 +8,10 @@ public class Checkpoint : MonoBehaviour {
 	public bool reverse;
 	
 	private int checkpointNumber;
-	private Timer timer;
+	private CheckpointManager checkpointManager;
 	
-	public void SetUp (Timer t, int n) {
-		timer = t;
+	public void SetUp (CheckpointManager m, int n) {
+		checkpointManager = m;
 		checkpointNumber = n;
 	}
 	
@@ -20,7 +20,7 @@ public class Checkpoint : MonoBehaviour {
 		{
 			if (other.gameObject.GetComponent<PlayerMovement>().GetDirectionAsVector2() == direction)
 			{
-				timer.CheckpointHit(checkpointNumber);
+				checkpointManager.CheckpointHit(checkpointNumber);
 				
 				if (reverse)
 				{
