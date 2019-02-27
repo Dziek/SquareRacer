@@ -2,12 +2,17 @@
 using UnityEngine.UI;
 // using System;
 using System.Collections;
+using TMPro;
 
 public class Timer : MonoBehaviour {
 	
-	public Text currentTimeText;
-	public Text lastTimeText;
-	public Text bestTimeText;
+	// public Text lastTimeText;
+	// public Text bestTimeText;
+	// public Text currentTimeText;
+	
+	public TextMeshProUGUI lastTimeText;
+	public TextMeshProUGUI bestTimeText;
+	public TextMeshProUGUI currentTimeText;
 	
 	private float currentTime;
 	private float lastTime;

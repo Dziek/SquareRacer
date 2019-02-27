@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
+using TMPro;
 
 public class LerpColor : MonoBehaviour {
 	
@@ -20,6 +21,7 @@ public class LerpColor : MonoBehaviour {
 	[HideInInspector] public SpriteRenderer[] sR_array;
 	[HideInInspector] public TrailRenderer[] tR_array;
 	[HideInInspector] public Text[] text_array;
+	[HideInInspector] public TextMeshProUGUI[] textPro_array;
 	
 	[HideInInspector] public SpriteRenderer sR;
 	[HideInInspector] public TrailRenderer tR;
@@ -135,6 +137,14 @@ public class LerpColor : MonoBehaviour {
 		{
 			// text.color = currentColor;
 			foreach (Text c in text_array)
+			{
+				c.color = currentColor;
+			}
+		}
+		
+		if (textPro_array != null)
+		{
+			foreach (TextMeshProUGUI c in textPro_array)
 			{
 				c.color = currentColor;
 			}

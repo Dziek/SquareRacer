@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
+using TMPro;
 
 public class LerpColorParent : LerpColor {
 	
@@ -19,6 +20,10 @@ public class LerpColorParent : LerpColor {
 		if (GetComponentsInChildren<Text>().Length > 0)
 		{
 			text_array = GetComponentsInChildren<Text>();
+		}
+		if (GetComponentsInChildren<TextMeshProUGUI>().Length > 0)
+		{
+			textPro_array = GetComponentsInChildren<TextMeshProUGUI>();
 		}
 	}
 	
