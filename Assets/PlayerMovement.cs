@@ -8,10 +8,15 @@ public class PlayerMovement : MonoBehaviour {
 	public float speedIncrease = 0.5f;
 	public float speedIncreaseMin = 0.05f;
 	
+	public float speedIncreaseTurn = 0.1f;
+	public float speedIncreaseLap = 2;
+	public float speedDecreaseBump = 0.5f;
+	
 	private float speed;
 	private float speed_TEST;
 	
 	public bool reverseControls;
+	public bool blockControls;
 	
 	public enum directions{
 		Up,
@@ -19,18 +24,24 @@ public class PlayerMovement : MonoBehaviour {
 		Right,
 		Left,
 		None
-	} [HideInInspector] public directions direction = directions.None, selectedDirection;
+	} [HideInInspector] public directions direction, crashDirection, selectedDirection;
 	
 	private Rigidbody2D rb2D;
-	private TrailRenderer tR;
+	private TrailRenderer tR; // HAHA TODO decide if I want this of PlayerTail
 	
 	private CameraShake cameraShakeScript;
 	private AudioController audioController;
+	private Timer timerScript;
+	private PlayerGraphics playerGraphics;
+	private PlayerTail playerTail;
 	
 	// private bool hit;
 	
 	void Awake () {
 		audioController = GameObject.Find("AudioController").GetComponent<AudioController>();
+		timerScript = GameObject.Find("StartingLine").GetComponent<Timer>();
+		playerGraphics = GetComponentInChildren<PlayerGraphics>();
+		playerTail = GetComponentInChildren<PlayerTail>();
 	}
 	
 	// Use this for initialization
@@ -54,9 +65,12 @@ public class PlayerMovement : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		
-		CheckControls();
+		if (blockControls == false)
+		{
+			CheckControls();
+		}
 		
-		if (speed >= startingSpeed * 2)
+		if (speed >= startingSpeed * 1.5f)
 		{
 			// Messenger<float>.Broadcast("screenshake", speed/150);
 			cameraShakeScript.ConstantShake(speed/1000);
@@ -117,6 +131,11 @@ public class PlayerMovement : MonoBehaviour {
 		
 		selectedDirection = (directions) System.Enum.Parse (typeof(directions), dir);
 		
+		if (selectedDirection == crashDirection && crashDirection != directions.None) // this means the player is trying to go into a wall. This is bad
+		{
+			return;
+		}
+		
 		if (direction != selectedDirection)
 		{
 			if (GetDirectionAsVector2() != -GetDirectionAsVector2(selectedDirection))
@@ -125,25 +144,33 @@ public class PlayerMovement : MonoBehaviour {
 				{
 					speed_TEST += speedIncrease;
 					
-					
-					// speed += speedIncrease;
-					// speed += speedIncrease * (1 - GetSpeedPercentage());
-					speed += Mathf.Clamp(speedIncrease * (1.2f - GetSpeedPercentage()), speedIncreaseMin, speedIncrease); 
+					// NORMAL WAY OF DOING IT
+					// speed += speedIncrease; // normal
+					// speed += speedIncrease * (1 - GetSpeedPercentage()); // decreases speedIncrease
+					// speed += Mathf.Clamp(speedIncrease * (1.2f - GetSpeedPercentage()), speedIncreaseMin, speedIncrease); // levels out speedIncrease			
 					// UNSURE (0.05 is too shallow. Trying 0.3f speedIncreaseMin. I like there being a curve, but can't be too shallow
-					Debug.Log("Current Speed is: " + speed + " instead of: " + speed_TEST);
+					// Debug.Log("Current Speed is: " + speed + " instead of: " + speed_TEST);
 					
-					ColorController.IncreaseSpeed(0.1f);
+					speed += speedIncreaseTurn;
+					// Debug.Log("Current Speed is: " + speed + " instead of: " + speed_TEST);
+					
+					// ColorController.IncreaseSpeed(0.02f);
+					ColorController.UpdateSpeed(GetSpeedPercentage());
 					
 					audioController.PlayerTurn();
 				}else{
 					audioController.StartLevelAudio();
+					playerGraphics.MoveSprite();
+					timerScript.UnpauseTimer();
 				}
 			}else{
 				SlowDown();
 			}
 		}
 		
-			direction = selectedDirection;
+		direction = selectedDirection;
+		crashDirection = directions.None;
+		playerGraphics.FaceDirection(GetDirectionAsVector2());
 	}
 	
 	public Vector3 GetDirectionAsVector () {
@@ -207,46 +234,106 @@ public class PlayerMovement : MonoBehaviour {
 	}
 	
 	void OnCollisionEnter2D (Collision2D other) {
+		if (other.gameObject.tag == "Wall")
+		{	
+			if (other.contacts[0].normal == -(Vector2)GetDirectionAsVector())
+			{
+				Messenger<float>.Broadcast("screenshake", speed/50);
+				
+				audioController.Crash(speed);
+				playerGraphics.StillSprite();
+				
+				StartCoroutine("BlockControls");
+				
+				SlowDown();
+				Debug.Log("Crash");
+			}else{
+				Messenger<float>.Broadcast("screenshake", speed/100);
+				speed -= speedDecreaseBump;
+				ColorController.UpdateSpeed(GetSpeedPercentage());
+				
+				playerTail.Clear();
+				Debug.Log("Close call");
+			}
+		}
+	}
+	
+	void OnCollisionStay2D (Collision2D other) {
+		// I need the normal stuff for Stay
 		if (other.gameObject.tag == "Wall" && other.contacts[0].normal == -(Vector2)GetDirectionAsVector())
 		{
-			// hit = true;
-			
-			Messenger<float>.Broadcast("screenshake", speed/50);
-			
 			audioController.Crash(speed);
+			playerGraphics.StillSprite();
+			
+			StartCoroutine("BlockControls");
 			
 			SlowDown();
-			// Debug.Log("HIT");
+			Debug.Log("HIT");
 		}
-		// else{
-			// hit = false;
-		// }
 	}
 	
 	void SlowDown () {
 		
 		Debug.Log("PlayerSpeed was: " + speed);
 		
-		
+		playerTail.Clear();
 		
 		speed_TEST = startingSpeed;
 		speed = startingSpeed;
 		// speed = Mathf.Clamp(speed - speedIncrease, startingSpeed, maxSpeed);
 		
 		// ColorController.ResetDuration();
-		ColorController.ResetSpeed();
+		// ColorController.ResetSpeed();
+		ColorController.UpdateSpeed(GetSpeedPercentage());
 		
 		if (tR != null)
 		{
 			tR.Clear();
 		}
 		
+		crashDirection = direction;
 		direction = directions.None;
+		ColorController.SkipForward();
+		timerScript.PauseTimer();
 		
 		// Debug.Log("S");
 	}
 	
 	public float GetSpeedPercentage () {
 		return Mathf.InverseLerp(startingSpeed, maxSpeed, speed);
+	}
+	
+	// this will possibly be used to get a buffer. For example, the first lap should really see much change, so maybe the "percentage" takes place from
+	// startingSpeed +1 or something
+	public float GetAdjustedSpeedPercentage () {
+		float bufferValue = speedIncreaseLap; // this was 2 when originally made. It should mean the first lap doesn't change much
+		return Mathf.InverseLerp(startingSpeed + bufferValue, maxSpeed, speed);
+	}
+	
+	IEnumerator BlockControls () {
+		float t = 0;
+		float blockDuration = 0.2f;
+		
+		// while (t < blockDuration)
+		// {
+			// t += Time.deltaTime;
+			// return yield null;
+		// }
+		
+		blockControls = true;
+		
+		yield return new WaitForSeconds(blockDuration);
+		
+		blockControls = false;
+		
+		
+	}
+	
+	public void LapComplete () {
+		// Debug.Break();
+		speed += speedIncreaseLap;
+		ColorController.UpdateSpeed(GetSpeedPercentage());
+		// ColorController.IncreasedSpeed(0.2f);
+		// ColorController.SkipForward();
 	}
 }

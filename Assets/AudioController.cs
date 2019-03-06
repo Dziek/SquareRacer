@@ -23,10 +23,11 @@ public class AudioController : MonoBehaviour {
 	void Awake () {
 		audioSource = GetComponent<AudioSource>();
 		playerMovement = GameObject.Find("Player").GetComponent<PlayerMovement>();
+		
+		// fadeInCoroutine = FadeIn();
 	}
 	
-	void Update () {
-		
+	void Update () {		
 		UpdateLevelTrackPitch();
 		UpdateLevelTrackBassVolume();
 	}
@@ -43,7 +44,7 @@ public class AudioController : MonoBehaviour {
 	}
 	
 	void UpdateLevelTrackBassVolume () {
-		float min = -0.1f;
+		float min = -0.5f;
 		float max = 1;
 		
 		float v = Mathf.Lerp(min, max, playerMovement.GetSpeedPercentage());
@@ -84,8 +85,11 @@ public class AudioController : MonoBehaviour {
 	public void Crash (float speed) {
 		PlayClip(crashNoise, playerAS);
 		
+		StopCoroutine("FadeIn");
+		
 		// StartCoroutine("FadeOutFadeIn");
 		StartCoroutine("FadeOut");
+		// StopLevelAudio();
 	}
 	
 	public void PlayerTurn () {
@@ -97,12 +101,13 @@ public class AudioController : MonoBehaviour {
 		StartCoroutine("FadeIn");
 	}
 	
-	public void StopLevelAudio () {
-		levelAS.volume = 0;
-		levelAS2.volume = 0;
-	}
+	// public void StopLevelAudio () {
+		// levelAS.volume = 0;
+		// levelAS2.volume = 0;
+	// }
 	
 	IEnumerator FadeOut () {
+		
 		// float outTime = 0.219f;
 		float outTime = Mathf.Lerp(0, 0.219f, playerMovement.GetSpeedPercentage());
 		

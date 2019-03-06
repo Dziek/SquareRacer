@@ -18,14 +18,26 @@ public class Timer : MonoBehaviour {
 	private float lastTime;
 	private float bestTime;
 	
+	private bool pauseTimer;
+	
 	private AudioController audioController;
+	private PlayerMovement playerMovement;
 	
 	void Awake () {
 		audioController = GameObject.Find("AudioController").GetComponent<AudioController>();
+		playerMovement = GameObject.Find("Player").GetComponent<PlayerMovement>();
 	}
 	
 	public void StartLevel () {
 		StartCoroutine("StartTimer");
+	}
+	
+	public void PauseTimer () {
+		pauseTimer = true;
+	}
+	
+	public void UnpauseTimer () {
+		pauseTimer = false;
 	}
 	
 	IEnumerator StartTimer () {
@@ -33,13 +45,16 @@ public class Timer : MonoBehaviour {
 		
 		while (true)
 		{
-			currentTime += Time.deltaTime;
-			// currentTime++;
-			currentTimeText.text = currentTime.ToString("00.0");
-			
-			if (currentTime >= 99.9f)
+			if (pauseTimer == false)
 			{
-				currentTimeText.text = "99.9";
+				currentTime += Time.deltaTime;
+				// currentTime++;
+				currentTimeText.text = currentTime.ToString("00.0");
+				
+				if (currentTime >= 99.9f)
+				{
+					currentTimeText.text = "Na.N";
+				}
 			}
 			
 			yield return null;
@@ -62,6 +77,9 @@ public class Timer : MonoBehaviour {
 				audioController.LapComplete();
 			}
 		}
+		
+		// ColorController.SkipForward();
+		playerMovement.LapComplete();
 		
 		StopCoroutine("StartTimer");
 		StartCoroutine("StartTimer");

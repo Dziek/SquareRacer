@@ -99,7 +99,7 @@ public class LerpColor : MonoBehaviour {
 			float t = startingPoint + Mathf.Repeat(l, duration) / duration;
 			// float t = startingPoint + Mathf.Lerp(0, duration, Time.time);
 			
-			// t += ColorController.skip;
+			t += ColorController.skip;
 			
 			// 0.7 += 0.5
 			// 1.2
